@@ -1,0 +1,69 @@
+import numpy as np, trimesh, matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import math
+
+BASE = "/home/hatch/workspace/nape-trackball-case/deck14/"
+OUT = "/home/hatch/workspace/goals/nape-trackball-redesign/files/"
+
+def load(name):
+    return trimesh.load(BASE + name)
+
+def box(extents, center):
+    m = trimesh.creation.box(extents=extents)
+    m.apply_translation(center)
+    return m
+
+def rotz(mesh, deg):
+    m = mesh.copy()
+    m.apply_transform(trimesh.transformations.rotation_matrix(
+        math.radians(deg), [0, 0, 1]))
+    return m
+
+CASE = "#ccd1d8"
+POSE_L = 66.0
+POSE_R = -66.0
+
+parts = [
+    (load("NapeDeck14-centre.stl"), CASE),
+    (load("NapeDeck14-ring.stl"), "#5b8dd9"),
+    (load("NapeDeck14-wirering.stl"), "#e0a458"),
+    (rotz(load("NapeDeck14-leftarm.stl"), POSE_L), CASE),
+    (rotz(load("NapeDeck14-rightarm.stl"), POSE_R), CASE),
+    (rotz(load("NapeDeck14-leftarm.stl"), POSE_L + 180.0), CASE),
+    (rotz(load("NapeDeck14-rightarm.stl"), POSE_R + 180.0), CASE),
+]
+
+ball = trimesh.creation.uv_sphere(radius=17.0, count=[48, 32])
+parts.append((ball, "#c0272d"))
+
+for arm_keys, poses in [(((-48.5, 0.0), (-67.5, 0.0)), (POSE_L, POSE_L + 180.0)),
+                        (((48.5, 0.0), (67.5, 0.0)), (POSE_R, POSE_R + 180.0))]:
+    for kx, ky in arm_keys:
+        for pose in poses:
+            cap = box([14.0, 14.0, 7.0], [kx, ky, -5.5])
+            parts.append((rotz(cap, pose), "#eef0f2"))
+
+parts.append((box([7.75, 12.53, 1.6], [0, 0, -23.2]), "#b58900"))
+
+LIGHT = np.array([0.5, -0.4, 0.75]); LIGHT /= np.linalg.norm(LIGHT)
+tris_all, cols_all = [], []
+for mesh, color in parts:
+    tris_all.append(mesh.vertices[mesh.faces])
+    shade = 0.45 + 0.55 * np.clip(mesh.face_normals @ LIGHT, 0, 1)
+    base = np.array(matplotlib.colors.to_rgb(color))
+    cols_all.append(np.clip(base[None, :] * shade[:, None], 0, 1))
+tris = np.concatenate(tris_all); cols = np.concatenate(cols_all)
+
+for elev, azim, fname in [(24, -55, "NapeDeck-case-v14.png"),
+                          (80, -90, "NapeDeck-case-v14-top.png")]:
+    fig = plt.figure(figsize=(9.5, 6.8), dpi=150)
+    ax = fig.add_subplot(111, projection="3d")
+    ax.add_collection3d(Poly3DCollection(tris, facecolors=cols, edgecolors="none"))
+    ax.set_xlim(-90, 90); ax.set_ylim(-60, 60); ax.set_zlim(-40, 40)
+    ax.view_init(elev=elev, azim=azim)
+    ax.set_axis_off(); ax.set_box_aspect((2.2, 1.2, 1))
+    fig.savefig(OUT + fname, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    print("saved", fname)
