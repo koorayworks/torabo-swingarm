@@ -79,6 +79,9 @@ python3 -m venv .venv-cad
 
 レンダーは `scripts/render_deck19.py`（matplotlib による簡易表示）。
 
+ボールケースの生成済み STL / STEP は `ballcase34/` / `ballcase25/` にも
+置いてある（STL はテキスト（ASCII）形式で保存。形状はバイナリ版と同一）。
+
 ## 前提寸法（未実測のものを含む）
 
 - ディスプレイモジュール 31.5×39.0mm（Deck 案用、要ノギス確認）
