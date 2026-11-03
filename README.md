@@ -46,12 +46,35 @@ STL はスクリプトから再生成する方針のため、**正本はスク�
 | v18 | 角度固定のセットスクリューボスを廃止（摩擦保持） |
 | v19 | 滑り止めパッド（Ø10）の埋め込み座を追加（現行） |
 
+## 公式 BallCase のバリエーション（25mm / 34mm段付き）
+
+公式の BallCase（25mm ボール用、35×35）を土台にした別系統。
+
+- **34mm 段付き**: 下部の首（35mm）は公式のまま残して Top ケースに
+  そのまま嵌め、上で 44mm に広げて 34mm ボールを収める。
+  - `build_ballcase_34_stepped.py`: Ø6 ベアリングボール×3 支持版
+  - `build_ballcase_34_stepped_bs10.py`: ELECOM 交換用支持ユニットの
+    受けポケット版（使うユニットは M-TU03SS。ソケット 8×7×4mm は
+    M-BS10 / M-RS10 と共通。ファイル名の BS10 は旧称の名残）
+  - ボール入口は Ø33.95（印刷確認済み: 逆さにしても抜けず、
+    出し入れも軽い。Ø34.10 では抜け、Ø33.90 ではきつかった）
+- **25mm CAD 版**（`build_ballcase_25_cad.py`）: 公式ケースを実測して
+  CAD で作り直したもの。ボール面は解析球面 R13.25、上面は R8
+  フィレット、センサー窓 Ø13 と底面の六角マグネット穴は公式位置どおり。
+  支持ユニットポケット付き。
+
+ポケット仕様（テストピースで決定、`build_bs10_coupon.py`）:
+開口 8.0（接線方向）×7.7（壁方向）、深さは窪みの接平面から 3.35、
+左右に全深さの逃げ溝 3.5×4.4、方位 0/120/240°、仰角 −26°。
+
 ## STL の生成
 
 ```sh
 python3 -m venv .venv-cad
 .venv-cad/bin/pip install build123d
 .venv-cad/bin/python scripts/build_case_deck_v19.py   # deck19/ に STL 出力
+.venv-cad/bin/python scripts/build_ballcase_34_stepped_bs10.py  # scripts/ballcase34/ に出力
+.venv-cad/bin/python scripts/build_ballcase_25_cad.py           # scripts/ballcase25/ に出力
 ```
 
 レンダーは `scripts/render_deck19.py`（matplotlib による簡易表示）。
