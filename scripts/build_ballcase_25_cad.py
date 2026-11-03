@@ -30,7 +30,8 @@ TOP_Z = 17.99
 OUTLINE_C = (0.09, 0.25)  # case outline centre rel. ball axis
 
 PK_W = 8.0        # pocket opening, tangential (final spec, 2026-11-01)
-PK_H = 7.7        # pocket opening, along the wall (final spec, 2026-11-01)
+PK_H = float(os.environ.get("NAPE_PK_H", "7.6"))  # pocket opening, along the wall (7.7 was loose up/down in the 25mm case - tighter wall curvature opens the mouth more; 7.6 print-confirmed just right 2026-11-03. The 34mm case uses 7.7.)
+PK_TAG = os.environ.get("NAPE_PK_TAG", "")
 PK_DEPTH = 3.35   # from the cavity tangent plane; floor at CAV_R + 3.35
 PK_AZ = [0.0, 120.0, 240.0]
 PK_ELEV = -26.0
@@ -91,6 +92,6 @@ print(f"bbox X[{bb.min.X:.2f},{bb.max.X:.2f}] Y[{bb.min.Y:.2f},{bb.max.Y:.2f}] Z
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ballcase25")
 os.makedirs(OUT, exist_ok=True)
-export_stl(body, os.path.join(OUT, "Nape-BallCase-25mm-unitpockets-CAD.stl"))
-export_step(body, os.path.join(OUT, "Nape-BallCase-25mm-unitpockets-CAD.step"))
+export_stl(body, os.path.join(OUT, f"Nape-BallCase-25mm-unitpockets-CAD{PK_TAG}.stl"))
+export_step(body, os.path.join(OUT, f"Nape-BallCase-25mm-unitpockets-CAD{PK_TAG}.step"))
 print("wrote STL + STEP to", OUT)
